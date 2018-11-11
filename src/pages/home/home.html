@@ -27,7 +27,8 @@
   </form>
 
   <!-- display message -->
-  <ion-card class='singlePost' *ngFor='let p of posts'>
+  <!-- 現在のループが何番目か判断するために変数iにindexを格納 -->
+  <ion-card class='singlePost' *ngFor='let p of posts; let i = index'>
     <ion-item>
       <h2 padding-vertical>{{p.userName}}</h2>
     </ion-item>
@@ -42,7 +43,9 @@
           </button>
         </ion-col>
         <ion-col>
-          <button ion-button ion-start clear small>
+          <!-- ボタンクリックで関数を実行 -->
+          <!-- (イベント)=''…Angularのイベントバインディング。テンプレートからコンポーネントに情報を渡す -->
+          <button (click)='presentPrompt(i)' ion-button ion-start clear small>
             <ion-icon name='create'></ion-icon>
             <div>編集</div>
           </button>

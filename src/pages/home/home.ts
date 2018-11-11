@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import { NavController, AlertController } from 'ionic-angular';
 
 @Component({
   selector: 'page-home',
@@ -32,8 +32,16 @@ export class HomePage {
       }
     ];
 
-  constructor(public navCtrl: NavController) {
-
+  /*
+    使いたい機能をimport(L2)
+    →constructorの中でimportしたオブジェクト型のprivate変数を宣言
+    →コンポーネントの中でインポートしてきたオブジェクトの機能を利用できるようになる
+    …Dependency Injectionという概念
+  */ 
+  constructor(
+    public navCtrl: NavController,
+    private alertCtrl: AlertController
+    ) {
   }
 
   addPost() {
@@ -47,6 +55,37 @@ export class HomePage {
     this.posts.push(this.post);
     // 入力フィールドを空にする
     this.message = '';
+  }
+
+  presentPrompt(index: number) {
+    let alert = this.alertCtrl.create({
+      title: 'メッセージ編集',
+      inputs: [
+        {
+          name: 'message',
+          placeholder: 'メッセージ'
+        }
+      ],
+      buttons: [
+        {
+          text: 'キャンセル',
+          role: 'cancel',
+          handler: () => {
+            console.log('キャンセルが選択されました');
+          }
+        },
+        {
+          text: '更新',
+          handler: data => {
+            console.log(data);
+            // メッセージを上書き
+            this.posts[index].message = data.message;
+          }
+        }
+      ]
+    });
+    // createしたalertCtrlの表示処理
+    alert.present();
   }
 
 }
