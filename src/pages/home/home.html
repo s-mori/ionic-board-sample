@@ -9,13 +9,20 @@
 
 <!-- main content -->
 <ion-content padding>
-  <form name='form'>
+  <!-- #f='ngForm'…formに#fという変数名をつける -->
+  <!-- (submit)='addPost()'…submitでaddPostを実行 -->
+  <form #f='ngForm' (submit)='addPost()' name='form'>
     <ion-list class='inputBlock'>
       <ion-item padding class='textBlock'>
         <ion-label floating>メッセージ</ion-label>
-        <ion-input type='text' name='message'></ion-input>
+        <!-- required…バリデーション -->
+        <!-- [(ngModel)]='message'…双方向バインディング(Angular) -->
+        <ion-input required [(ngModel)]='message'
+                    type='text' name='message'></ion-input>
       </ion-item>
-      <button type='submit' block class='submit' ion-button>投稿</button>
+      <!-- [disabled]='!f.form.valid'…バリデーションチェックしてsubmitの有効/無効を操作 -->
+      <button type='submit' [disabled]='!f.form.valid'
+              block class='submit' ion-button>投稿</button>
     </ion-list>
   </form>
 
