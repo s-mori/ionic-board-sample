@@ -44,6 +44,7 @@ export class HomePage {
     ) {
   }
 
+  // 追加
   addPost() {
     // 入力されたメッセージを使って、投稿データを作成
     this.post = {
@@ -57,6 +58,7 @@ export class HomePage {
     this.message = '';
   }
 
+  // 編集
   presentPrompt(index: number) {
     let alert = this.alertCtrl.create({
       title: 'メッセージ編集',
@@ -86,6 +88,11 @@ export class HomePage {
     });
     // createしたalertCtrlの表示処理
     alert.present();
+  }
+
+  // 削除
+  deletePost(index: number) {
+    this.posts.splice(index, 1);
   }
 
 }
