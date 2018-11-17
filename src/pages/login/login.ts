@@ -5,6 +5,7 @@ import { NavController, ToastController } from 'ionic-angular';
 import { AngularFireAuth } from '@angular/fire/auth';
 
 import { HomePage } from '../home/home';
+import { SignupPage } from '../signup/signup';
 
 @Component({
   selector: 'page-login',
@@ -34,7 +35,7 @@ export class LoginPage {
     )
     .then( user => {
       this.toastCtrl.create({
-        message: 'ログインできました',
+        message: `${user.user.displayName}さん、こんにちは！`,
         duration: 3000
       }).present();
 
@@ -47,5 +48,10 @@ export class LoginPage {
         duration: 5000
       }).present();
     });
+  }
+
+  // 登録画面へ遷移
+  gotoSignup() {
+    this.navCtrl.push(SignupPage);
   }
 }
