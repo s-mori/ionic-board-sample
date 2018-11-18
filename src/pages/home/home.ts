@@ -12,6 +12,7 @@ import  { Post } from '../../app/models/post';
 
 // ログインページ
 import { LoginPage } from '../login/login';
+import { CommentsPage } from '../comments/comments';
 
 @Component({
   selector: 'page-home',
@@ -187,5 +188,14 @@ export class HomePage {
           duration: 5000
         }).present();
       })
+  }
+
+  // コメントページへ現在の投稿を受け渡しつつ移動
+  showComment(post: Post){
+    this.navCtrl.push(CommentsPage,
+      {
+        post: post
+      }
+    );
   }
 }
