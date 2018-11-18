@@ -10,6 +10,9 @@ import * as firebase from 'firebase';
 // 定義したインタフェースをインポート
 import  { Post } from '../../app/models/post';
 
+// ログインページ
+import { LoginPage } from '../login/login';
+
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html'
@@ -40,6 +43,9 @@ export class HomePage {
   // ライフサイクルメソッド
   // ページがアクティブになる直前に実行
   ionViewWillEnter() {
+    // Firestoreのネットワークを有効にする
+    // 一度ログアウトするとFirestoreへ正常に読み書きできなくなる現象の対応
+    this.afStore.firestore.enableNetwork();
     this.getPosts();
   }
 
@@ -160,4 +166,26 @@ export class HomePage {
     return moment(time).fromNow();
   }
 
+  // ログアウト処理
+  logout() {
+    /*
+      Firestoreのネットワークを無効化
+      ログアウト直後にFirestoreへ読み込みが発生した際、
+      権限エラーになってしまうのを防止
+    */
+    this.afStore.firestore.disableNetwork();
+    this.afAuth.auth.signOut()
+      .then( () => {
+        this.toastCtrl.create({
+          message: 'ログアウトしました',
+          duration: 3000
+        }).present();
+        this.navCtrl.setRoot(LoginPage);
+      }).catch( error => {
+        this.toastCtrl.create({
+          message: error,
+          duration: 5000
+        }).present();
+      })
+  }
 }
