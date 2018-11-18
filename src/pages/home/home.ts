@@ -1,36 +1,25 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController } from 'ionic-angular';
+import { NavController, AlertController, ToastController } from 'ionic-angular';
+
+import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/auth';
+
+import * as firebase from 'firebase';
+
+// 定義したインタフェースをインポート
+import  { Post } from '../../app/models/post';
 
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html'
 })
 export class HomePage {
+  message: string; // 入力メッセージ
+  post: Post;      // Postと同じデータ構造のプロパティを指定
+  posts: Post[];   // Post型の配列を指定
 
-  post: {
-    userName: string,
-    message: string,
-    createdDate: any
-  } = {
-    userName: 'Taro Hogeyama',
-    message: 'これはテストメッセージです',
-    createdDate: '10分前'
-  };
-  message: string;
-
-  posts: { userName: string, message: string, createdDate: any }[]
-    = [
-      {
-        userName: 'Taro Hogeyama',
-        message: 'これはテストメッセージです',
-        createdDate: '10分前'
-      },
-      {
-        userName: 'Jiro Hogeyama',
-        message: '2つ目のメッセージ',
-        createdDate: '5分前'
-      }
-    ];
+  // Firestoreのコレクションを扱うプロパティ
+  postsCollection: AngularFirestoreCollection<Post>;
 
   /*
     使いたい機能をimport(L2)
@@ -40,26 +29,64 @@ export class HomePage {
   */ 
   constructor(
     public navCtrl: NavController,
-    private alertCtrl: AlertController
-    ) {
+    private toastCtrl: ToastController,
+    private alertCtrl: AlertController,
+    private afStore: AngularFirestore,
+    private afAuth: AngularFireAuth
+  ) {
+  }
+
+  // ライフサイクルメソッド
+  // ページがアクティブになる直前に実行
+  ionViewWillEnter() {
+    this.getPosts();
   }
 
   // 追加
   addPost() {
     // 入力されたメッセージを使って、投稿データを作成
     this.post = {
-      userName: 'Saburo Hogeyama',
+      id: '',
+      userName: this.afAuth.auth.currentUser.displayName,
       message: this.message,
-      createdDate: '数秒前'
+      created: firebase.firestore.FieldValue.serverTimestamp()
     };
-    // 配列postsにpostを追加
-    this.posts.push(this.post);
-    // 入力フィールドを空にする
-    this.message = '';
+
+    // Firestoreにデータを追加
+    this.afStore.collection('posts').add(this.post)
+      .then( (docRef) => {
+        // 一度投稿を追加した後に、idを更新
+        this.postsCollection.doc(docRef.id).update({
+          id: docRef.id
+        });
+        // 追加できたら入力フィールドを空にする
+        this.message = '';
+      })
+      .catch( (error) => {
+        // エラーはToastControllerで表示
+        this.toastCtrl.create({
+          message: error,
+          duration: 5000
+        }).present();
+      })
+  }
+
+  getPosts() {
+    // コレクションの参照をここで取得
+    this.postsCollection = this.afStore.collection(
+      'posts',
+      ref => ref.orderBy('created', 'desc')
+    );
+
+    // データに変更があったらそれを受け取ってpostsに入れる
+    this.postsCollection.valueChanges()
+      .subscribe( data => {
+        this.posts = data;
+      });
   }
 
   // 編集
-  presentPrompt(index: number) {
+  presentPrompt(post: Post) {
     let alert = this.alertCtrl.create({
       title: 'メッセージ編集',
       inputs: [
@@ -79,9 +106,8 @@ export class HomePage {
         {
           text: '更新',
           handler: data => {
-            console.log(data);
-            // メッセージを上書き
-            this.posts[index].message = data.message;
+            // 投稿を更新するメソッドを実行
+            this.updatePost(post, data.message);
           }
         }
       ]
@@ -90,9 +116,40 @@ export class HomePage {
     alert.present();
   }
 
+  // メッセージをアップデート
+  // 更新される投稿とメッセージを受け取る
+  updatePost(post: Post, message: string) {
+    // 入力されたメッセージで投稿を更新
+    this.postsCollection.doc(post.id).update({
+      message: message
+    }).then( () => {
+      this.toastCtrl.create({
+        message: '投稿が更新されました',
+        duration: 3000
+      }).present();
+    }).catch( (error) => {
+      this.toastCtrl.create({
+        message: error,
+        duration: 5000
+      }).present();
+    })
+  }
+
   // 削除
-  deletePost(index: number) {
-    this.posts.splice(index, 1);
+  deletePost(post: Post) {
+    // 受け取った投稿のidを参照して削除
+    this.postsCollection.doc(post.id).delete()
+      .then( () => {
+        this.toastCtrl.create({
+          message: '投稿が削除されました',
+          duration: 3000
+        }).present();
+      }).catch( (error) => {
+        this.toastCtrl.create({
+          message: error,
+          duration: 5000
+        }).present();
+      })
   }
 
 }

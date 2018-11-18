@@ -61,7 +61,7 @@ export class SignupPage {
           message: error,
           duration: 5000
         }).present();
-      });
+      })
   }
 
   // ログインページに戻る処理

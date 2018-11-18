@@ -47,7 +47,7 @@ export class LoginPage {
         message: error,
         duration: 5000
       }).present();
-    });
+    })
   }
 
   // 登録画面へ遷移
