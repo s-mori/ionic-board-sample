@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, AlertController, ToastController } from 'ionic-angular';
+import moment from 'moment';
 
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { AngularFireAuth } from '@angular/fire/auth';
@@ -150,6 +151,13 @@ export class HomePage {
           duration: 5000
         }).present();
       })
+  }
+
+  // 投稿日時と現在日時の差分を返す
+  differenceTime(time: Date): string {
+    // 出力を日本語に設定
+    moment.locale('ja');
+    return moment(time).fromNow();
   }
 
 }

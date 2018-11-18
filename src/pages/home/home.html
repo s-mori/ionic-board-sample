@@ -57,8 +57,8 @@
           </button>
         </ion-col>
         <ion-col class='postedTime'>
-          <ion-note>
-            {{p.createdDate}}
+          <ion-note *ngIf='p.created'>
+            {{ differenceTime(p.created.toDate()) }}
           </ion-note>
         </ion-col>
       </ion-row>
